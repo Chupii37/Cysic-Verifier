@@ -57,14 +57,14 @@ echo -e "\033[36mShowing ANIANI!!!\033[0m"
 echo -e "\033[32mMenampilkan logo...\033[0m"
 wget -qO- https://raw.githubusercontent.com/Chupii37/Chupii-Node/refs/heads/main/Logo.sh | bash
 
-# Check if wallet_amount is passed as an environment variable
+# Check if WALLET_AMOUNT is passed as an environment variable
 if [[ -z "$WALLET_AMOUNT" ]]; then
     echo "Error: WALLET_AMOUNT not set. Please set the wallet amount in the service configuration."
     exit 1
 fi
-echo "You selected to use $WALLET_AMOUNT wallet."
+echo "You selected to use $WALLET_AMOUNT wallet(s)."
 
-# Check if wallet addresses are passed as an environment variable
+# Check if WALLET_ADDRESSES are passed as an environment variable
 if [[ -z "$WALLET_ADDRESSES" ]]; then
     echo "Error: WALLET_ADDRESSES not set. Please provide wallet addresses in the service configuration."
     exit 1
@@ -78,7 +78,7 @@ for (( i=0; i<${#wallet_addresses[@]}; i++ )); do
     wallet_address="${wallet_addresses[$i]}"
     echo "Running setup for wallet address: $wallet_address"
     
-    # Use full path for curl and wget
+    # Download and run the setup script
     /usr/bin/curl -L https://github.com/cysic-labs/phase2_libs/releases/download/v1.0.0/setup_linux.sh > ~/setup_linux.sh
     /bin/bash ~/setup_linux.sh "$wallet_address"
     
@@ -106,6 +106,12 @@ EOL
     echo "Bash script created successfully."
 }
 
-# Create the systemd service and bash script
+# Step 1: Create the bash script
 create_bash_script
+
+# Step 2: Create the systemd service and start it
 create_systemd_service
+
+# Check if systemd is running and output the status
+echo "Checking systemd service status..."
+sudo systemctl status multi-wallet-setup.service
