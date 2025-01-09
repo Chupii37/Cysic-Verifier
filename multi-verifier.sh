@@ -65,12 +65,17 @@ done
 # After setting up all services:
 echo -e "\033[33m📝 Here is the command to view the cysic log for each reward address...\033[0m"
 
+# Display the separator only once at the top
+echo -e "\033[36m========================================\033[0m"
+
 # Loop through the addresses to display the commands to view logs
 for ((i = 1; i <= NUM_ADDRESSES; i++)); do
-  echo -e "\033[36m========================================\033[0m"
+
   echo -e "\033[32m📜 Command to view the cysic log for address HALIM$i:\033[0m"
   echo -e "\033[35msudo journalctl -u cysic_halim$i.service -f --no-hostname -o cat\033[0m"
-  echo -e "\033[36m========================================\033[0m\n"
+
+# Display the separator only once at the bottom
+echo -e "\033[36m========================================\033[0m"
 done
 
 echo -e "\033[32m🎉 Setup complete! You can now view the logs using the above command. 🎉\033[0m"
