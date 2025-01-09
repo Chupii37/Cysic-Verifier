@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x  # Enable debugging to show each command execution
 
 # Set the path where the service and script will be located
 SERVICE_FILE="/etc/systemd/system/multi-wallet-setup.service"
@@ -46,6 +47,7 @@ create_bash_script() {
 
     cat <<'EOL' > $SCRIPT_FILE
 #!/bin/bash
+set -x  # Debugging each step
 
 # Make the script executable
 chmod +x ~/setup_linux.sh
