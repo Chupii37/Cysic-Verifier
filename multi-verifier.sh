@@ -28,16 +28,19 @@ for ((i = 1; i <= NUM_ADDRESSES; i++)); do
   # Store the address in the array
   VERIFIER_ADDRESSES+=("$REWARD_ADDRESS")
 
-  # Download the setup script
+  # Dynamic naming for each setup script
+  SETUP_SCRIPT="setup_linux$i.sh"
+
+  # Download the setup script with a unique name for each address
   echo -e "\033[35m🔄 Downloading setup script for address #$i...\033[0m"
-  curl -L https://github.com/cysic-labs/phase2_libs/releases/download/v1.0.0/setup_linux.sh -o ~/setup_linux.sh
+  curl -L https://github.com/cysic-labs/phase2_libs/releases/download/v1.0.0/setup_linux.sh -o ~/$SETUP_SCRIPT
   if [[ $? -ne 0 ]]; then
     echo "Error: Failed to download the setup script. Please check your internet connection or the URL."
     exit 1
   fi
 
   # Run the setup script for the current address
-  bash ~/setup_linux.sh "$REWARD_ADDRESS"
+  bash ~/$SETUP_SCRIPT "$REWARD_ADDRESS"
   if [[ $? -ne 0 ]]; then
     echo "Error: Setup script failed for address $REWARD_ADDRESS."
     exit 1
