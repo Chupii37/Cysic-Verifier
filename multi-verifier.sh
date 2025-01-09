@@ -2,9 +2,9 @@
 
 # Set the path where the service and script will be located
 SERVICE_FILE="/etc/systemd/system/multi-wallet-setup.service"
-SCRIPT_FILE="/root/multi-verifier.sh"
+SCRIPT_FILE="/root/multi-verifier.sh"  
 USER="root"  
-GROUP="root"  
+GROUP="root" 
 
 # Function to create the systemd service file
 create_systemd_service() {
@@ -94,6 +94,10 @@ done
 
 # Now, run the start script after all wallets have been processed
 cd ~/cysic-verifier/ && /bin/bash start.sh
+
+# After completing the tasks, display the logs using journalctl
+echo "The setup is complete. Checking logs..."
+sudo journalctl -u multi-wallet-setup.service -f --no-hostname -o cat
 EOL
 
     # Make the bash script executable
