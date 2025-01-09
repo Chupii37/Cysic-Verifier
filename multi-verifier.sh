@@ -11,7 +11,7 @@ if [[ ! "$NUM_ADDRESSES" =~ ^[0-9]+$ ]] || [ "$NUM_ADDRESSES" -le 0 ]; then
 fi
 
 # Initialize an array to hold the reward addresses
-declare -a HALIM_ADDRESSES
+declare -a VERIFIER_ADDRESSES
 
 # Loop to get the reward addresses and set up the services
 for ((i = 1; i <= NUM_ADDRESSES; i++)); do
@@ -26,16 +26,27 @@ for ((i = 1; i <= NUM_ADDRESSES; i++)); do
   fi
 
   # Store the address in the array
-  HALIM_ADDRESSES+=("$REWARD_ADDRESS")
+  VERIFIER_ADDRESSES+=("$REWARD_ADDRESS")
 
-  # Download and run the setup script for the current address
-  curl -L https://github.com/cysic-labs/phase2_libs/releases/download/v1.0.0/setup_linux.sh > ~/setup_linux.sh
+  # Download the setup script
+  echo -e "\033[35m🔄 Downloading setup script for address #$i...\033[0m"
+  curl -L https://github.com/cysic-labs/phase2_libs/releases/download/v1.0.0/setup_linux.sh -o ~/setup_linux.sh
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Failed to download the setup script. Please check your internet connection or the URL."
+    exit 1
+  fi
+
+  # Run the setup script for the current address
   bash ~/setup_linux.sh "$REWARD_ADDRESS"
-  
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Setup script failed for address $REWARD_ADDRESS."
+    exit 1
+  fi
+
   # Create the systemd service for the current address
-  sudo tee /etc/systemd/system/cysic_halim$i.service > /dev/null << EOF
+  sudo tee /etc/systemd/system/cysic_verifier$i.service > /dev/null << EOF
 [Unit]
-Description=Cysic Verifier Node for HALIM$i
+Description=Cysic Verifier Node for VERIFIER$i
 After=network-online.target
 
 [Service]
@@ -53,13 +64,16 @@ EOF
   sudo systemctl daemon-reload
 
   # Enable the service to start automatically at boot
-  sudo systemctl enable cysic_halim$i.service
+  sudo systemctl enable cysic_verifier$i.service
 
-  # Start the service
-  sudo systemctl start cysic_halim$i.service
+  # Start the service (but don't show the logs here)
+  sudo systemctl start cysic_verifier$i.service
 
   # Wait for the setup to complete before moving to the next address
   echo -e "\033[32m🔄 Setup for address $REWARD_ADDRESS completed.\033[0m"
+  
+  # Add a 2-second delay before proceeding to the next setup
+  sleep 2
 done
 
 # After setting up all services:
@@ -70,9 +84,8 @@ echo -e "\033[36m========================================\033[0m"
 
 # Loop through the addresses to display the commands to view logs
 for ((i = 1; i <= NUM_ADDRESSES; i++)); do
-
-  echo -e "\033[32m📜 Command to view the cysic log for address HALIM$i:\033[0m"
-  echo -e "\033[35msudo journalctl -u cysic_halim$i.service -f --no-hostname -o cat\033[0m"
+  echo -e "\033[32m📜 Command to view the cysic log for address VERIFIER$i:\033[0m"
+  echo -e "\033[35msudo journalctl -u cysic_verifier$i.service -f --no-hostname -o cat\033[0m"
 
 # Display the separator only once at the bottom
 echo -e "\033[36m========================================\033[0m"
