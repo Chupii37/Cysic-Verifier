@@ -62,19 +62,15 @@ EOF
   echo -e "\033[32m🔄 Setup for address $REWARD_ADDRESS completed.\033[0m"
 done
 
-# After all addresses are set up, display the command to view the logs
+# After setting up all services:
 echo -e "\033[33m📝 Here is the command to view the cysic log for each reward address...\033[0m"
 
-# Loop to display journalctl commands for each address
-for ((i = 0; i < NUM_ADDRESSES; i++)); do
-  HALIM=${HALIM_ADDRESSES[$i]}
-  
-  # Display the journalctl command for each address in the format HALIM1, HALIM2, etc.
-  echo -e "\n\n\033[36m========================================\033[0m"
-  echo -e "\033[32m📜 Command to view the cysic log for address HALIM$(($i+1)):\033[0m"
-  echo -e "\033[35msudo journalctl -u cysic_halim$(($i+1)).service -f --no-hostname -o cat\033[0m"
-  echo -e "\033[36m========================================\033[0m\n\n"
+# Loop through the addresses to display the commands to view logs
+for ((i = 1; i <= NUM_ADDRESSES; i++)); do
+  echo -e "\033[36m========================================\033[0m"
+  echo -e "\033[32m📜 Command to view the cysic log for address HALIM$i:\033[0m"
+  echo -e "\033[35msudo journalctl -u cysic_halim$i.service -f --no-hostname -o cat\033[0m"
+  echo -e "\033[36m========================================\033[0m\n"
 done
 
-# Last message after setup is complete
 echo -e "\033[32m🎉 Setup complete! You can now view the logs using the above command. 🎉\033[0m"
