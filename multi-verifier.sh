@@ -22,38 +22,39 @@ if [[ ! "$NUM_ADDRESSES" =~ ^[0-9]+$ ]] || [ "$NUM_ADDRESSES" -le 0 ]; then
 fi
 
 # Initialize an array to store the reward addresses
-declare -a ADDRESSES
+declare -a HALIM_ADDRESSES
 
 # Ask the user to input the reward addresses
 for ((i = 1; i <= NUM_ADDRESSES; i++)); do
   echo -e "\033[35m🔑 Please enter reward address #$i (example: 0x123...):\033[0m"
-  read -r REWARD_ADDRESS
+  read -r HALIM
 
   # Ensure the address is not empty
-  if [[ -z "$REWARD_ADDRESS" ]]; then
+  if [[ -z "$HALIM" ]]; then
     echo -e "\033[31m❌ Error: Reward address cannot be empty. ❌\033[0m"
     exit 1
   fi
 
   # Store the address in the array
-  ADDRESSES+=("$REWARD_ADDRESS")
+  HALIM_ADDRESSES+=("$HALIM")
 done
 
 # Download and run the setup script from GitHub for each address
-for REWARD_ADDRESS in "${ADDRESSES[@]}"; do
-  echo -e "\033[34m🚀 Setting up with reward address: $REWARD_ADDRESS\033[0m"
+for ((i = 0; i < NUM_ADDRESSES; i++)); do
+  HALIM=${HALIM_ADDRESSES[$i]}
+  echo -e "\033[34m🚀 Setting up with reward address: $HALIM\033[0m"
 
   # Download and run the setup script for the current address
   curl -L https://github.com/cysic-labs/phase2_libs/releases/download/v1.0.0/setup_linux.sh > ~/setup_linux.sh
-  bash ~/setup_linux.sh "$REWARD_ADDRESS"
+  bash ~/setup_linux.sh "$HALIM"
 
   # Wait for the setup process to complete for this address
   wait
 
   # Create a systemd service configuration file for the cysic service with a unique name
-  sudo tee /etc/systemd/system/cysic_${REWARD_ADDRESS}.service > /dev/null << EOF
+  sudo tee /etc/systemd/system/cysic_halim${i+1}.service > /dev/null << EOF
 [Unit]
-Description=Cysic Verifier Node for $REWARD_ADDRESS
+Description=Cysic Verifier Node for $HALIM
 After=network-online.target
 
 [Service]
@@ -71,20 +72,22 @@ EOF
   sudo systemctl daemon-reload
 
   # Enable the cysic service to start automatically on boot
-  sudo systemctl enable cysic_${REWARD_ADDRESS}.service
+  sudo systemctl enable cysic_halim${i+1}.service
 
   # Start the cysic service
-  sudo systemctl start cysic_${REWARD_ADDRESS}.service
+  sudo systemctl start cysic_halim${i+1}.service
 done
 
 # After all addresses are set up, display the commands to view the logs for each address
 echo -e "\033[33m📝 Here are the commands to view the cysic logs for each reward address...\033[0m"
 
 # Loop to display the journalctl commands for each address
-for REWARD_ADDRESS in "${ADDRESSES[@]}"; do
+for ((i = 0; i < NUM_ADDRESSES; i++)); do
+  HALIM=${HALIM_ADDRESSES[$i]}
+  # Display the journalctl command for each address in the format HALIM1, HALIM2, etc.
   echo -e "\n\n\033[36m========================================\033[0m"
-  echo -e "\033[32m📜 Command to view cysic log for address $REWARD_ADDRESS:\033[0m"
-  echo -e "\033[35msudo journalctl -u cysic_${REWARD_ADDRESS}.service -f --no-hostname -o cat\033[0m"
+  echo -e "\033[32m📜 Command to view cysic log for address HALIM$(($i+1)):\033[0m"
+  echo -e "\033[35msudo journalctl -u cysic_halim$(($i+1)).service -f --no-hostname -o cat\033[0m"
   echo -e "\033[36m========================================\033[0m\n\n"
 done
 
