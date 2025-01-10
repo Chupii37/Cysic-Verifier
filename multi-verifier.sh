@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Display message after logo with cyan color
+echo -e "\033[36mShowing ANIANI!!!\033[0m" 
+
+# Display logo without saving file, directly from URL
+echo -e "\033[32mMenampilkan logo...\033[0m"
+wget -qO- https://raw.githubusercontent.com/Chupii37/Chupii-Node/refs/heads/main/Logo.sh | bash 
+
 # Ask the user how many addresses they want to use
 echo -e "\033[35m🔑 How many reward addresses would you like to use? (e.g., 2): \033[0m"
 read -r NUM_ADDRESSES
